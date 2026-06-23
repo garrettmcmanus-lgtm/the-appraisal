@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Appraisal — by Aven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14130F; --ink-2:#1C1B15; --ink-3:#27241B;
+    --line:#3A3628; --line-soft:#2E2B20;
+    --paper:#ECE6D6; --paper-dim:#A39C87; --paper-faint:#6F6A59;
+    --brass:#C9A227; --brass-soft:#E4CB7A;
+    --sage:#84A36B; --oxblood:#CF5739; --teal:#6FA39C;
+    --display:'Fraunces', Georgia, 'Times New Roman', serif;
+    --ui:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --mono:'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(120% 80% at 50% -10%, #1E1C14 0%, var(--ink) 60%), var(--ink);
+    color:var(--paper); font-family:var(--ui); -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; align-items:flex-start; justify-content:center;
+    padding:34px 18px 70px;
+  }
+  .wrap{ width:100%; max-width:560px; }
+
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.32em; text-transform:uppercase; color:var(--brass); margin:0 0 14px; }
+  .muted{ color:var(--paper-dim); }
+  .mono{ font-family:var(--mono); }
+
+  .btn{ font-family:var(--ui); font-weight:500; font-size:15px; color:var(--ink); background:var(--brass);
+    border:0; border-radius:2px; padding:14px 26px; cursor:pointer; width:100%;
+    transition:transform .12s ease, background .15s ease, box-shadow .15s ease; }
+  .btn:hover{ background:var(--brass-soft); transform:translateY(-1px); box-shadow:0 8px 24px -10px rgba(201,162,39,.6); }
+  .btn:active{ transform:translateY(0); }
+  .btn.ghost{ background:transparent; color:var(--paper-dim); border:1px solid var(--line); }
+  .btn.ghost:hover{ background:var(--ink-2); color:var(--paper); border-color:var(--paper-faint); box-shadow:none; }
+  .btn:focus-visible{ outline:2px solid var(--brass-soft); outline-offset:3px; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  .screen{ display:none; animation:rise .45s cubic-bezier(.2,.7,.2,1) both; }
+  .screen.active{ display:block; }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- title ---- */
+  #title{ text-align:center; padding-top:14px; }
+  .wordmark{ font-family:var(--mono); font-size:12px; letter-spacing:.5em; text-transform:uppercase; color:var(--paper-dim); }
+  .title-h{ font-family:var(--display); font-weight:600; font-size:clamp(52px,15vw,86px); line-height:.95; letter-spacing:-.02em; margin:16px 0 6px;
+    background:linear-gradient(178deg,var(--paper),#C9BFA4); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .title-sub{ max-width:420px; margin:14px auto 26px; color:var(--paper-dim); font-size:15px; line-height:1.6; }
+  .title-art{ margin:6px auto 22px; width:min(360px,84vw); }
+  .title-meta{ font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--paper-faint); margin-top:24px; }
+
+  /* ---- round ---- */
+  .round-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
+  .round-tag{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--paper-dim); }
+  .score-tag{ font-family:var(--mono); font-size:12px; color:var(--paper-dim); }
+  .score-tag b{ color:var(--brass-soft); font-weight:600; }
+
+  .listing{ background:var(--ink-2); border:1px solid var(--line); border-radius:5px; overflow:hidden; }
+  .frame{ position:relative; background:#0F0E0A; border-bottom:1px solid var(--line); }
+  .frame svg{ display:block; width:100%; height:auto; }
+  .frame-label{ position:absolute; top:10px; left:12px; font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--paper); background:rgba(20,19,15,.72); padding:4px 9px; border-radius:2px; backdrop-filter:blur(2px); }
+  .listing-body{ padding:18px 20px 20px; }
+  .loc{ font-family:var(--display); font-weight:600; font-size:23px; line-height:1.1; }
+  .loc-sub{ color:var(--paper-dim); font-size:13.5px; margin-top:3px; }
+  .stats{ display:flex; gap:0; margin:16px 0 4px; border:1px solid var(--line-soft); border-radius:3px; overflow:hidden; }
+  .stat{ flex:1; text-align:center; padding:10px 4px; border-right:1px solid var(--line-soft); }
+  .stat:last-child{ border-right:0; }
+  .stat-v{ font-family:var(--mono); font-weight:500; font-size:16px; }
+  .stat-k{ font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--paper-faint); margin-top:3px; }
+  .blurb{ color:var(--paper-dim); font-size:13.5px; line-height:1.5; margin:14px 0 0; font-style:italic; }
+
+  /* ---- guess ---- */
+  .guess-wrap{ margin-top:22px; }
+  .guess-q{ font-family:var(--display); font-weight:400; font-size:18px; text-align:center; margin:0 0 4px; }
+  .guess-val{ font-family:var(--mono); font-weight:500; font-size:clamp(38px,11vw,52px); text-align:center; letter-spacing:-.01em; color:var(--brass-soft); }
+  .nudge-row{ display:flex; justify-content:center; gap:10px; margin:8px 0 6px; }
+  .nudge{ font-family:var(--mono); font-size:13px; color:var(--paper-dim); background:var(--ink-2); border:1px solid var(--line); border-radius:3px; padding:6px 14px; cursor:pointer; }
+  .nudge:hover{ border-color:var(--brass); color:var(--paper); }
+  input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:6px;
+    background:linear-gradient(90deg, var(--brass) 0%, var(--line) 0%); outline:none; margin:14px 0 4px; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:24px; height:24px; border-radius:50%;
+    background:var(--brass-soft); border:3px solid var(--ink); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.5); }
+  input[type=range]::-moz-range-thumb{ width:24px; height:24px; border-radius:50%; background:var(--brass-soft); border:3px solid var(--ink); cursor:pointer; }
+  .scale-ends{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--paper-faint); margin-bottom:18px; }
+
+  /* ---- reveal ---- */
+  .reveal{ margin-top:20px; animation:rise .4s ease both; }
+  .reveal-head{ text-align:center; }
+  .verdict-word{ font-family:var(--display); font-weight:700; font-size:26px; margin:0; }
+  .verdict-word.good{ color:var(--sage); } .verdict-word.mid{ color:var(--brass-soft); } .verdict-word.bad{ color:var(--oxblood); }
+  .reveal-pts{ font-family:var(--mono); font-size:13px; color:var(--paper-dim); margin-top:4px; }
+  .reveal-pts b{ color:var(--paper); }
+  .bar{ position:relative; height:46px; margin:22px 0 6px; }
+  .bar-track{ position:absolute; top:50%; left:0; right:0; height:4px; transform:translateY(-50%); border-radius:4px;
+    background:linear-gradient(90deg,#2c2a20,#43402f); }
+  .marker{ position:absolute; top:50%; transform:translate(-50%,-50%); text-align:center; transition:left .6s cubic-bezier(.3,1,.4,1); }
+  .marker .dot{ width:14px; height:14px; border-radius:50%; margin:0 auto; }
+  .marker .lab{ font-family:var(--mono); font-size:10px; white-space:nowrap; margin-top:5px; }
+  .marker.guess .dot{ background:var(--paper); } .marker.guess .lab{ color:var(--paper-dim); }
+  .marker.actual .dot{ background:var(--brass); box-shadow:0 0 0 4px rgba(201,162,39,.18); } .marker.actual .lab{ color:var(--brass-soft); }
+  .marker .amt{ font-family:var(--mono); font-size:13px; font-weight:600; margin-bottom:6px; }
+  .marker.guess .amt{ color:var(--paper); } .marker.actual .amt{ color:var(--brass-soft); }
+  .reveal-ctx{ color:var(--paper-dim); font-size:13px; line-height:1.55; text-align:center; max-width:430px; margin:18px auto 0; font-style:italic; }
+  .reveal-foot{ margin-top:22px; }
+
+  /* ---- result ---- */
+  #result{ text-align:center; }
+  .res-verdict{ font-family:var(--display); font-weight:700; font-size:clamp(32px,9vw,48px); line-height:1.02; margin:6px 0 4px; }
+  .res-verdict.t-master{ color:var(--brass-soft); } .res-verdict.t-sharp{ color:var(--sage); } .res-verdict.t-warm{ color:var(--teal); } .res-verdict.t-comps{ color:var(--paper-dim); }
+  .res-score{ font-family:var(--mono); font-size:15px; color:var(--paper-dim); margin:10px 0 2px; }
+  .res-score b{ color:var(--paper); font-size:20px; }
+  .recap{ text-align:left; margin:26px auto 0; }
+  .recap h3{ font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--paper-faint); font-weight:500; margin:0 0 10px; }
+  .recap-row{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:11px 0; border-bottom:1px solid var(--line-soft); }
+  .recap-home{ font-family:var(--display); font-weight:600; font-size:15px; }
+  .recap-home small{ display:block; font-family:var(--mono); font-weight:400; font-size:11px; color:var(--paper-faint); margin-top:2px; letter-spacing:.04em; }
+  .recap-nums{ font-family:var(--mono); font-size:12.5px; text-align:right; white-space:nowrap; }
+  .recap-nums .g{ color:var(--paper-dim); } .recap-nums .a{ color:var(--brass-soft); }
+  .recap-nums .d{ display:block; margin-top:2px; }
+  .d.good{ color:var(--sage); } .d.mid{ color:var(--brass-soft); } .d.bad{ color:var(--oxblood); }
+  .result-foot{ margin-top:28px; }
+  .tagline{ font-family:var(--display); font-style:italic; font-size:15px; color:var(--paper); max-width:430px; margin:30px auto 0; line-height:1.5; }
+  .disclaimer{ margin-top:22px; font-size:11px; color:var(--paper-faint); line-height:1.6; max-width:470px; margin-left:auto; margin-right:auto; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TITLE -->
+  <section id="title" class="screen active">
+    <div class="wordmark">Aven</div>
+    <h1 class="title-h">The Appraisal</h1>
+    <div class="title-art" id="titleArt"></div>
+    <p class="title-sub">Five homes, drawn from five eras and five corners of the country. You see the house, the place, and the year. You name the price it sold for. The closer you land, the higher you score.</p>
+    <button class="btn" id="startBtn">Start appraising</button>
+    <div class="title-meta">5 homes · guess the price · score out of 5,000</div>
+  </section>
+
+  <!-- ROUND -->
+  <section id="round" class="screen">
+    <div class="round-top">
+      <div class="eyebrow" style="margin:0;">The Appraisal</div>
+      <div class="score-tag" id="scoreTag">Score <b>0</b></div>
+    </div>
+    <div class="round-tag" id="roundTag" style="margin-bottom:14px;">Home 1 of 5</div>
+
+    <div class="listing">
+      <div class="frame">
+        <div class="frame-label" id="frameLabel">—</div>
+        <div id="houseArt"></div>
+      </div>
+      <div class="listing-body">
+        <div class="loc" id="loc">—</div>
+        <div class="loc-sub" id="locSub">—</div>
+        <div class="stats" id="stats"></div>
+        <p class="blurb" id="blurb">—</p>
+      </div>
+    </div>
+
+    <!-- guess controls -->
+    <div class="guess-wrap" id="guessWrap">
+      <p class="guess-q" id="guessQ">What did this home sell for?</p>
+      <div class="guess-val" id="guessVal">$100,000</div>
+      <div class="nudge-row">
+        <button class="nudge" data-step="-30">− a lot</button>
+        <button class="nudge" data-step="-8">− a little</button>
+        <button class="nudge" data-step="8">+ a little</button>
+        <button class="nudge" data-step="30">+ a lot</button>
+      </div>
+      <input type="range" id="slider" min="0" max="1000" value="500" step="1" aria-label="Guess the home price">
+      <div class="scale-ends"><span id="scaleMin">$5,000</span><span id="scaleMax">$3,000,000</span></div>
+      <button class="btn" id="lockBtn">Lock in your guess</button>
+    </div>
+
+    <!-- reveal -->
+    <div class="reveal" id="reveal" style="display:none;">
+      <div class="reveal-head">
+        <p class="verdict-word" id="verdictWord">—</p>
+        <p class="reveal-pts" id="revealPts">—</p>
+      </div>
+      <div class="bar" id="bar">
+        <div class="bar-track"></div>
+        <div class="marker guess" id="mGuess"><div class="amt" id="mGuessAmt"></div><div class="dot"></div><div class="lab">your guess</div></div>
+        <div class="marker actual" id="mActual"><div class="amt" id="mActualAmt"></div><div class="dot"></div><div class="lab">sold for</div></div>
+      </div>
+      <p class="reveal-ctx" id="revealCtx"></p>
+      <div class="reveal-foot"><button class="btn" id="nextBtn">Next home</button></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen">
+    <div class="eyebrow" style="text-align:center;">Final appraisal</div>
+    <div class="res-verdict" id="resVerdict">—</div>
+    <p class="res-score" id="resScore">—</p>
+    <div class="recap"><h3>Home by home</h3><div id="recap"></div></div>
+    <p class="tagline">Knowing what a home is worth is the first step to knowing what it can do.</p>
+    <div class="result-foot"><button class="btn" id="againBtn">Appraise again</button></div>
+    <p class="disclaimer">An Aven concept game. The homes are original illustrations, and the prices are representative period figures chosen for play — not real appraisals, listings, or a statement of any home's value. Nothing here is financial advice or a description of any Aven product or terms.</p>
+  </section>
+
+</div>
+
+<script>
+/* =====================================================
+   THE APPRAISAL — guess the home value (by Aven)
+   ===================================================== */
+
+// ---------- SVG houses (original illustrations) ----------
+function scene(sky, ground, inner){
+  return `<svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg" role="img">
+    <rect width="420" height="300" fill="${sky}"/>
+    <rect x="0" y="232" width="420" height="68" fill="${ground}"/>
+    ${inner}
+  </svg>`;
+}
+const ART = {
+  brooklyn: scene("#2b3346","#2a2620", `
+    <rect x="20" y="120" width="58" height="112" fill="#5b5246"/><rect x="20" y="120" width="58" height="6" fill="#6b6253"/>
+    <rect x="342" y="110" width="58" height="122" fill="#5b5246"/><rect x="342" y="110" width="58" height="6" fill="#6b6253"/>
+    <rect x="120" y="70" width="180" height="162" fill="#8a5a3b"/>
+    <rect x="120" y="60" width="180" height="16" fill="#9c6a47"/><rect x="116" y="56" width="188" height="8" fill="#73492f"/>
+    <rect x="138" y="86" width="30" height="44" fill="#26303f"/><rect x="252" y="86" width="30" height="44" fill="#26303f"/>
+    <rect x="138" y="150" width="30" height="44" fill="#26303f"/><rect x="252" y="150" width="30" height="44" fill="#26303f"/>
+    <rect x="138" y="86" width="30" height="6" fill="#caa46a"/><rect x="252" y="86" width="30" height="6" fill="#caa46a"/>
+    <rect x="138" y="150" width="30" height="6" fill="#caa46a"/><rect x="252" y="150" width="30" height="6" fill="#caa46a"/>
+    <rect x="192" y="158" width="36" height="74" fill="#3a2b20"/><rect x="196" y="162" width="28" height="36" fill="#5a4632"/>
+    <polygon points="180,232 240,232 232,210 188,210" fill="#6b6253"/>
+    <rect x="186" y="222" width="48" height="4" fill="#7d7361"/><rect x="190" y="214" width="40" height="4" fill="#7d7361"/>`),
+
+  levittown: scene("#9fb8c9","#7e8a5a", `
+    <rect x="110" y="150" width="200" height="82" fill="#e7e0cf"/>
+    <polygon points="96,150 324,150 210,84" fill="#9a6b52"/>
+    <polygon points="160,128 200,128 180,108" fill="#b98c72"/><polygon points="220,128 260,128 240,108" fill="#b98c72"/>
+    <rect x="166" y="120" width="28" height="8" fill="#3b4a52"/><rect x="226" y="120" width="28" height="8" fill="#3b4a52"/>
+    <rect x="132" y="168" width="34" height="34" fill="#41525a"/><rect x="254" y="168" width="34" height="34" fill="#41525a"/>
+    <line x1="149" y1="168" x2="149" y2="202" stroke="#e7e0cf" stroke-width="3"/><line x1="132" y1="185" x2="166" y2="185" stroke="#e7e0cf" stroke-width="3"/>
+    <line x1="271" y1="168" x2="271" y2="202" stroke="#e7e0cf" stroke-width="3"/><line x1="254" y1="185" x2="288" y2="185" stroke="#e7e0cf" stroke-width="3"/>
+    <rect x="196" y="178" width="28" height="54" fill="#7a5238"/>
+    <g stroke="#cfc7b2" stroke-width="4">
+      <line x1="40" y1="232" x2="40" y2="212"/><line x1="62" y1="232" x2="62" y2="212"/><line x1="84" y1="232" x2="84" y2="212"/>
+      <line x1="34" y1="220" x2="90" y2="220"/></g>`),
+
+  detroit: scene("#b6a98a","#6f6a4c", `
+    <rect x="250" y="150" width="150" height="82" fill="#9c5b46"/>
+    <polygon points="240,150 410,150 410,128 252,128" fill="#7c8268"/>
+    <rect x="300" y="172" width="78" height="60" fill="#3a342c"/>
+    <line x1="339" y1="172" x2="339" y2="232" stroke="#9c5b46" stroke-width="4"/>
+    <rect x="60" y="146" width="200" height="86" fill="#a86048"/>
+    <polygon points="48,146 272,146 272,122 60,122" fill="#7c8268"/>
+    <rect x="74" y="160" width="74" height="40" fill="#3a342c"/><rect x="74" y="160" width="74" height="6" fill="#c89a6a"/>
+    <line x1="111" y1="160" x2="111" y2="200" stroke="#a86048" stroke-width="4"/><line x1="74" y1="180" x2="148" y2="180" stroke="#a86048" stroke-width="4"/>
+    <rect x="170" y="166" width="34" height="66" fill="#6a4a30"/>
+    <rect x="226" y="118" width="14" height="24" fill="#6e655a"/>`),
+
+  chicago: scene("#3a4456","#2b2820", `
+    <rect x="120" y="64" width="180" height="168" fill="#9a958a"/>
+    <rect x="120" y="58" width="180" height="10" fill="#aaa498"/><rect x="116" y="50" width="188" height="10" fill="#86827a"/>
+    <rect x="150" y="84" width="34" height="48" fill="#2c3542"/><rect x="236" y="84" width="34" height="48" fill="#2c3542"/>
+    <polygon points="150,150 196,150 196,200 174,210 150,200" fill="#86827a"/>
+    <rect x="158" y="158" width="30" height="40" fill="#2c3542"/>
+    <rect x="232" y="150" width="36" height="48" fill="#2c3542"/><rect x="232" y="150" width="36" height="6" fill="#b6b0a2"/>
+    <rect x="204" y="170" width="30" height="62" fill="#5a4a38"/>
+    <polygon points="196,170 242,170 219,150" fill="#73604a"/>
+    <rect x="196" y="206" width="48" height="6" fill="#7a766a"/><rect x="200" y="196" width="40" height="6" fill="#7a766a"/><rect x="204" y="186" width="32" height="6" fill="#7a766a"/>`),
+
+  paloalto: scene("#cdd7d0","#8f9472", `
+    <rect x="70" y="150" width="280" height="82" fill="#6b5847"/>
+    <polygon points="60,150 360,150 360,138 60,150" fill="#4a3d30"/>
+    <rect x="60" y="138" width="300" height="6" fill="#3a2f25"/>
+    <rect x="92" y="158" width="120" height="74" fill="#acc4cb"/>
+    <line x1="132" y1="158" x2="132" y2="232" stroke="#4a3d30" stroke-width="3"/><line x1="172" y1="158" x2="172" y2="232" stroke="#4a3d30" stroke-width="3"/>
+    <rect x="92" y="158" width="120" height="74" fill="none" stroke="#4a3d30" stroke-width="3"/>
+    <rect x="232" y="166" width="30" height="66" fill="#caa46a"/>
+    <rect x="280" y="158" width="60" height="74" fill="#9bb0b6"/><line x1="310" y1="158" x2="310" y2="232" stroke="#4a3d30" stroke-width="3"/>
+    <rect x="40" y="120" width="6" height="112" fill="#5a4a38"/><circle cx="43" cy="120" r="22" fill="#6f8f5e"/><circle cx="58" cy="132" r="16" fill="#7c9a6a"/><circle cx="28" cy="132" r="16" fill="#7c9a6a"/>`),
+
+  vegas: scene("#d9b48a","#c2a878", `
+    <rect x="250" y="150" width="150" height="82" fill="#e3cdab"/>
+    <polygon points="244,150 406,150 406,134 250,134" fill="#a85a44"/>
+    <rect x="262" y="176" width="36" height="56" fill="#5a4a38"/><rect x="306" y="176" width="36" height="56" fill="#5a4a38"/><rect x="350" y="176" width="36" height="56" fill="#5a4a38"/>
+    <rect x="80" y="96" width="160" height="136" fill="#ead7b6"/>
+    <polygon points="70,96 250,96 250,80 80,80" fill="#a85a44"/>
+    <rect x="96" y="112" width="36" height="30" fill="#b9966a"/><rect x="188" y="112" width="36" height="30" fill="#b9966a"/>
+    <path d="M140 232 V164 a20 20 0 0 1 40 0 V232 Z" fill="#6b4a30"/>
+    <path d="M134 164 a26 26 0 0 1 52 0 Z" fill="#caa46a"/>
+    <rect x="20" y="150" width="6" height="82" fill="#6b5238"/>
+    <g fill="#5a7a4a"><path d="M23 150 q-26 -10 -36 4 q24 -2 36 8"/><path d="M23 150 q26 -10 36 4 q-24 -2 -36 8"/><path d="M23 150 q-8 -28 6 -38 q2 24 -6 38"/><path d="M23 150 q8 -28 -6 -38 q-2 24 6 38"/></g>`),
+
+  austin: scene("#c9d2c0","#8a8a5a", `
+    <rect x="96" y="120" width="228" height="60" fill="#b8743f"/>
+    <polygon points="80,120 340,120 210,72" fill="#5a6b4a"/>
+    <rect x="96" y="180" width="228" height="52" fill="#caa46a"/>
+    <rect x="96" y="178" width="228" height="6" fill="#7a5230"/>
+    <rect x="120" y="138" width="34" height="34" fill="#3a4a44"/><rect x="266" y="138" width="34" height="34" fill="#3a4a44"/>
+    <rect x="194" y="138" width="32" height="42" fill="#5a3e28"/>
+    <rect x="110" y="188" width="16" height="44" fill="#e7ddc6"/><rect x="108" y="184" width="20" height="6" fill="#9a8050"/>
+    <rect x="294" y="188" width="16" height="44" fill="#e7ddc6"/><rect x="292" y="184" width="20" height="6" fill="#9a8050"/>
+    <rect x="36" y="150" width="8" height="82" fill="#5a4a38"/><circle cx="40" cy="140" r="26" fill="#5f7d4e"/><circle cx="60" cy="156" r="18" fill="#6f8f5e"/><circle cx="20" cy="156" r="18" fill="#6f8f5e"/>`),
+
+  boise: scene("#cfd8de","#9aa07a", `
+    <rect x="118" y="120" width="184" height="112" fill="#efeee9"/>
+    <polygon points="104,120 316,120 210,58" fill="#23211c"/>
+    <rect x="150" y="170" width="44" height="62" fill="#1f1d18"/>
+    <polygon points="150,170 232,170 232,232 194,232 194,170" fill="#1f1d18"/>
+    <polygon points="142,176 242,176 210,150" fill="#2b2922"/>
+    <rect x="242" y="140" width="40" height="44" fill="#262420"/><line x1="262" y1="140" x2="262" y2="184" stroke="#efeee9" stroke-width="3"/><line x1="242" y1="162" x2="282" y2="162" stroke="#efeee9" stroke-width="3"/>
+    <rect x="134" y="140" width="34" height="22" fill="#262420"/>
+    <g stroke="#3a3a32" stroke-width="1.5" opacity=".5"><line x1="130" y1="120" x2="130" y2="232"/><line x1="150" y1="120" x2="150" y2="232"/><line x1="290" y1="120" x2="290" y2="232"/></g>
+    <rect x="338" y="160" width="8" height="72" fill="#4a4032"/><polygon points="342,90 372,170 312,170" fill="#3f5a3a"/><polygon points="342,120 366,180 318,180" fill="#4a6b44"/>`)
+};
+
+// ---------- HOMES ----------
+const HOMES = [
+  { id:"brooklyn", art:ART.brooklyn, era:"1925", loc:"Brooklyn, New York", style:"Brownstone Rowhouse",
+    value:11500, beds:"4", baths:"1", sqft:"2,200", lot:"20 × 80 ft",
+    blurb:"Three stories of brownstone, a parlor floor, and a stoop made for sitting out the summer.",
+    ctx:"About <b>$205,000</b> in today's dollars. The same block now lists in the seven figures." },
+  { id:"levittown", art:ART.levittown, era:"1951", loc:"Levittown, New York", style:"Cape Cod Tract House",
+    value:8000, beds:"2", baths:"1", sqft:"800", lot:"60 × 100 ft",
+    blurb:"The house that built the American suburb. Nearly identical to ten thousand neighbors.",
+    ctx:"Famously sold new for around <b>$7,990</b>, with no down payment for returning veterans." },
+  { id:"detroit", art:ART.detroit, era:"1974", loc:"Detroit, Michigan", style:"Brick Ranch",
+    value:27500, beds:"3", baths:"1.5", sqft:"1,300", lot:"0.18 acre",
+    blurb:"Single story brick, a wide picture window, and a two-car garage off the side.",
+    ctx:"Roughly <b>$175,000</b> in today's dollars, in a city whose fortunes were about to turn." },
+  { id:"chicago", art:ART.chicago, era:"1985", loc:"Chicago, Illinois", style:"Greystone Two-Flat",
+    value:72000, beds:"4", baths:"2", sqft:"2,400", lot:"25 × 125 ft",
+    blurb:"A carved limestone facade, a front bay window, and a second unit to rent upstairs.",
+    ctx:"About <b>$210,000</b> today. The rental unit upstairs was the original house hack." },
+  { id:"paloalto", art:ART.paloalto, era:"1996", loc:"Palo Alto, California", style:"Eichler Mid-Century Modern",
+    value:535000, beds:"3", baths:"2", sqft:"1,700", lot:"0.2 acre",
+    blurb:"Post and beam, floor-to-ceiling glass, and an open atrium, a short walk from a garage where a search engine is taking shape.",
+    ctx:"That same Eichler trades for well over <b>$3,000,000</b> now. Location compounded faster than any stock." },
+  { id:"vegas", art:ART.vegas, era:"2007", loc:"Las Vegas, Nevada", style:"Stucco McMansion",
+    value:415000, beds:"5", baths:"3", sqft:"3,400", lot:"0.25 acre",
+    blurb:"Tile roof, arched entry, three-car garage. Bought at the very top of the market.",
+    ctx:"Within two years it would shed more than half its value as the housing market collapsed." },
+  { id:"austin", art:ART.austin, era:"2016", loc:"East Austin, Texas", style:"Craftsman Bungalow",
+    value:419000, beds:"3", baths:"2", sqft:"1,500", lot:"0.15 acre",
+    blurb:"A low porch on tapered columns and a live oak out front, in the neighborhood the whole country is moving to.",
+    ctx:"It would nearly double again over the next six years as Austin boomed." },
+  { id:"boise", art:ART.boise, era:"2022", loc:"Boise, Idaho", style:"Modern Farmhouse",
+    value:689000, beds:"4", baths:"3", sqft:"2,600", lot:"0.2 acre",
+    blurb:"Board-and-batten siding, black-framed windows, a standing-seam gable. The look of nearly every new build in the country.",
+    ctx:"Bought near the peak of the pandemic run-up, just before rates climbed and cooled the market." }
+];
+
+const ROUNDS = 5, PMIN = 5000, PMAX = 3_000_000, LOGMIN = Math.log(PMIN), LOGSPAN = Math.log(PMAX)-Math.log(PMIN);
+
+// ---------- STATE ----------
+let game = {};
+function newGame(){
+  const deck = HOMES.slice().sort(()=>Math.random()-0.5).slice(0,ROUNDS);
+  game = { deck, idx:0, score:0, results:[], slider:500, locked:false };
+}
+
+// ---------- HELPERS ----------
+const $ = id => document.getElementById(id);
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+function sliderToPrice(s){ return PMIN * Math.pow(PMAX/PMIN, s/1000); }
+function priceToPct(p){ return Math.max(0, Math.min(100, (Math.log(p)-LOGMIN)/LOGSPAN*100)); }
+function niceRound(p){
+  if(p>=500000) return Math.round(p/10000)*10000;
+  if(p>=100000) return Math.round(p/5000)*5000;
+  if(p>=30000)  return Math.round(p/1000)*1000;
+  if(p>=10000)  return Math.round(p/500)*500;
+  return Math.round(p/100)*100;
+}
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo({top:0,behavior:"smooth"}); }
+
+// small decorative house for the title
+$("titleArt").innerHTML = ART.austin;
+
+// ---------- ROUND ----------
+function startRound(){
+  const h = game.deck[game.idx];
+  game.locked = false; game.slider = 500;
+  $("roundTag").textContent = `Home ${game.idx+1} of ${ROUNDS}`;
+  $("scoreTag").innerHTML = `Score <b>${game.score.toLocaleString()}</b>`;
+  $("frameLabel").textContent = `${h.era} · ${h.style}`;
+  $("houseArt").innerHTML = h.art;
+  $("loc").textContent = h.loc;
+  $("locSub").textContent = `${h.era} · ${h.style}`;
+  $("stats").innerHTML = [
+    ["beds", h.beds], ["baths", h.baths], ["sq ft", h.sqft], ["lot", h.lot]
+  ].map(([k,v])=>`<div class="stat"><div class="stat-v">${v}</div><div class="stat-k">${k}</div></div>`).join("");
+  $("blurb").textContent = h.blurb;
+  $("guessQ").textContent = `What did this home sell for in ${h.era}?`;
+
+  $("guessWrap").style.display = "block";
+  $("reveal").style.display = "none";
+  const sl = $("slider"); sl.value = 500; sl.disabled = false;
+  $("lockBtn").disabled = false;
+  updateGuessUI();
+  show("round");
+}
+
+function updateGuessUI(){
+  const sl = $("slider");
+  const price = niceRound(sliderToPrice(+sl.value));
+  game.guessPrice = price;
+  $("guessVal").textContent = money(price);
+  const pct = sl.value/10;
+  sl.style.background = `linear-gradient(90deg, var(--brass) ${pct}%, var(--line) ${pct}%)`;
+}
+
+$("slider").addEventListener("input", e=>{ if(game.locked) return; game.slider = +e.target.value; updateGuessUI(); });
+document.querySelectorAll(".nudge").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    if(game.locked) return;
+    const sl = $("slider");
+    sl.value = Math.max(0, Math.min(1000, +sl.value + (+b.dataset.step)));
+    updateGuessUI();
+  });
+});
+
+function verdictFor(err){
+  if(err <= 0.07) return {w:"Spot on", c:"good"};
+  if(err <= 0.15) return {w:"Sharp eye", c:"good"};
+  if(err <= 0.30) return {w:"In the ballpark", c:"mid"};
+  if(err <= 0.55) return {w:"Off the mark", c:"bad"};
+  return {w:"Way off", c:"bad"};
+}
+
+$("lockBtn").addEventListener("click", ()=>{
+  if(game.locked) return;
+  game.locked = true;
+  const h = game.deck[game.idx];
+  const guess = game.guessPrice, actual = h.value;
+  const err = Math.abs(guess-actual)/actual;
+  const pts = Math.max(0, Math.round(1000*(1-err)));
+  game.score += pts;
+  game.results.push({h, guess, actual, err, pts});
+
+  const v = verdictFor(err);
+  $("verdictWord").textContent = v.w;
+  $("verdictWord").className = "verdict-word " + v.c;
+  $("revealPts").innerHTML = `Within <b>${Math.round(err*100)}%</b> · <b>${pts}</b> points`;
+  $("scoreTag").innerHTML = `Score <b>${game.score.toLocaleString()}</b>`;
+
+  // markers
+  $("mGuessAmt").textContent = money(guess);
+  $("mActualAmt").textContent = money(actual);
+  $("mGuess").style.left = "50%";
+  $("mActual").style.left = "50%";
+  $("revealCtx").innerHTML = h.ctx;
+  $("nextBtn").textContent = (game.idx === ROUNDS-1) ? "See your appraisal" : "Next home";
+
+  $("slider").disabled = true; $("lockBtn").disabled = true;
+  $("guessWrap").style.display = "none";
+  $("reveal").style.display = "block";
+  // animate markers into place after layout settles
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    $("mGuess").style.left = priceToPct(guess) + "%";
+    $("mActual").style.left = priceToPct(actual) + "%";
+  }));
+});
+
+$("nextBtn").addEventListener("click", ()=>{
+  game.idx++;
+  if(game.idx >= ROUNDS) finish(); else startRound();
+});
+
+// ---------- RESULT ----------
+function finish(){
+  const avg = game.score / ROUNDS;
+  let tier;
+  if(avg >= 850) tier = {cls:"t-master", name:"Master Appraiser", line:"A trained eye. You read era, location, and square footage like a seasoned appraiser."};
+  else if(avg >= 650) tier = {cls:"t-sharp", name:"Sharp Eye", line:"Strong instincts. You were rarely far from the number that mattered."};
+  else if(avg >= 400) tier = {cls:"t-warm", name:"Getting Warm", line:"The right direction, if not the right decimal. A few more comps and you have it."};
+  else tier = {cls:"t-comps", name:"Needs More Comps", line:"Home values bend hard with era and place. Worth a second walk-through."};
+
+  $("resVerdict").textContent = tier.name;
+  $("resVerdict").className = "res-verdict " + tier.cls;
+  $("resScore").innerHTML = `<b>${game.score.toLocaleString()}</b> / ${(ROUNDS*1000).toLocaleString()} points`;
+
+  $("recap").innerHTML = game.results.map(r=>{
+    const v = verdictFor(r.err);
+    return `<div class="recap-row">
+      <div class="recap-home">${r.h.loc}<small>${r.h.era} · ${r.h.style}</small></div>
+      <div class="recap-nums">
+        <span class="g">you ${money(r.guess)}</span> · <span class="a">sold ${money(r.actual)}</span>
+        <span class="d ${v.c}">${Math.round(r.err*100)}% off · ${r.pts} pts</span>
+      </div></div>`;
+  }).join("");
+
+  show("result");
+}
+
+// ---------- WIRING ----------
+$("startBtn").addEventListener("click", ()=>{ newGame(); startRound(); });
+$("againBtn").addEventListener("click", ()=>{ newGame(); startRound(); });
+
+newGame();
+</script>
+</body>
+</html>
